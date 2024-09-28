@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: server
+  mail:
+    host: smtp.free.fr
+    port: 587
+    username: thibaut.delorme@free.fr
+    password: Jt04022009
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/
+      database: smart_bati
