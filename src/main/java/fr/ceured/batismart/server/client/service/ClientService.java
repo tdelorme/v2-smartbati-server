@@ -8,7 +8,8 @@ import fr.ceured.batismart.server.client.model.Client;
 import fr.ceured.batismart.server.client.repository.ClientRepository;
 import fr.ceured.batismart.server.commons.InvalidInputException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -34,8 +35,7 @@ public class ClientService {
         }
 
         ClientEntity clientEntity = clientMapper.clientToClientEntity(client);
-        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        User user = userService.getByEmail(email);
+        User user = userService.getUserInSecurityConfig();
 
         clientEntity.setUserId(user.getId());
 
@@ -47,6 +47,12 @@ public class ClientService {
                 .stream()
                 .map(clientMapper::clientEntityToClient)
                 .toList();
+    }
+
+    public Page<Client> getAllClientsByPage(Pageable pageable) {
+        User user = userService.getUserInSecurityConfig();
+        return clientRepository.findAllByUserId(user.getId(), pageable)
+                .map(clientMapper::clientEntityToClient);
     }
 
 }
