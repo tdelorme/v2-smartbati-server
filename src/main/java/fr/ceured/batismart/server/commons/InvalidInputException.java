@@ -1,6 +1,5 @@
-package fr.ceured.batismart.server.authentication.exception;
+package fr.ceured.batismart.server.commons;
 
-import fr.ceured.batismart.server.commons.CustomException;
 import org.springframework.http.HttpStatus;
 
 public class InvalidInputException extends CustomException {

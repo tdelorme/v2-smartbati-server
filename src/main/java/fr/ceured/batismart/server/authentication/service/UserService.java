@@ -2,7 +2,7 @@ package fr.ceured.batismart.server.authentication.service;
 
 import fr.ceured.batismart.server.authentication.entity.UserEntity;
 import fr.ceured.batismart.server.authentication.exception.EmailNotFoundException;
-import fr.ceured.batismart.server.authentication.exception.InvalidInputException;
+import fr.ceured.batismart.server.commons.InvalidInputException;
 import fr.ceured.batismart.server.authentication.exception.UserAlreadyExistException;
 import fr.ceured.batismart.server.authentication.exception.UserAlreadyVerifiedException;
 import fr.ceured.batismart.server.authentication.mapper.UserMapper;
