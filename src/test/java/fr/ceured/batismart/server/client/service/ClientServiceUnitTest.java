@@ -1,6 +1,5 @@
 package fr.ceured.batismart.server.client.service;
 
-import fr.ceured.batismart.server.authentication.exception.EmailNotFoundException;
 import fr.ceured.batismart.server.authentication.model.User;
 import fr.ceured.batismart.server.authentication.service.UserService;
 import fr.ceured.batismart.server.client.entity.ClientEntity;
@@ -21,9 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,44 +100,16 @@ public class ClientServiceUnitTest {
     }
 
     @Test
-    void should_throw_email_exception_when_email_is_not_found() {
-        //GIVEN
-        mockSpringSecurity();
-
-        Mockito.when(userService.getByEmail("username")).thenThrow(new EmailNotFoundException());
-
-        Client client = buildClient();
-        ClientEntity clientEntity = buildClientEntity();
-
-        Mockito.when(clientMapper.clientToClientEntity(client)).thenReturn(clientEntity);
-
-        //WHEN & THEN
-        EmailNotFoundException enfe = Assertions.assertThrows(EmailNotFoundException.class, () -> clientService.createClient(client));
-        Assertions.assertEquals(EmailNotFoundException.EMAIL_NOT_FOUND, enfe.getMessage());
-    }
-
-    @Test
     void should_return_client_created_when_all_is_ok() {
         //GIVEN
-        mockSpringSecurity();
-
-        User user = new User();
-        user.setEmail("username");
-        user.setPassword("password");
-        user.setActive(true);
-        user.setPhone("phone");
-        user.setFirstName("firstname");
-        user.setLastName("lastname");
-
-        // WHEN
-        Mockito.when(userService.getByEmail("username")).thenReturn(user);
+        mockUser();
 
         Client client = buildClient();
         ClientEntity clientEntity = buildClientEntity();
         Mockito.when(clientMapper.clientToClientEntity(client)).thenReturn(clientEntity);
         Mockito.when(clientMapper.clientEntityToClient(clientEntity)).thenReturn(client);
         Mockito.when(clientRepository.save(clientEntity)).thenReturn(clientEntity);
-
+        // WHEN
         Client clientReturned = clientService.createClient(client);
         // THEN
         Assertions.assertNotNull(clientReturned);
@@ -173,6 +141,8 @@ public class ClientServiceUnitTest {
     @Test
     void should_return_list_of_client_from_page_request() {
         //GIVEN
+        User user = mockUser();
+
         Client client = buildClient();
 
         ClientEntity clientEntity = buildClientEntity();
@@ -185,13 +155,13 @@ public class ClientServiceUnitTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         //WHEN
-        Mockito.when(clientRepository.findAll(pageable)).thenReturn(clientEntitiesPage);
+        Mockito.when(clientRepository.findAllByUserId(user.getId(), pageable)).thenReturn(clientEntitiesPage);
         Mockito.when(clientMapper.clientEntityToClient(clientEntity)).thenReturn(client);
 
-        List<Client> clients = clientService.getAllClientsByPage(pageable);
+        Page<Client> clients = clientService.getAllClientsByPage(pageable);
 
         Assertions.assertNotNull(clients);
-        Assertions.assertEquals(2, clients.size());
+        Assertions.assertEquals(2, clients.getTotalElements());
 
     }
 
@@ -216,12 +186,18 @@ public class ClientServiceUnitTest {
                 .build();
     }
 
-    private static void mockSpringSecurity() {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        Mockito.when(authentication.getPrincipal()).thenReturn("username");
-    }
+    private User mockUser() {
+        User user = new User();
+        user.setId("id");
+        user.setEmail("username");
+        user.setPassword("password");
+        user.setActive(true);
+        user.setPhone("phone");
+        user.setFirstName("firstname");
+        user.setLastName("lastname");
 
+        Mockito.when(userService.getUserInSecurityConfig()).thenReturn(user);
+
+        return user;
+    }
 }
