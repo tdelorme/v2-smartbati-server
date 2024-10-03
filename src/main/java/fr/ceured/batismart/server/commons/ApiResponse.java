@@ -1,14 +1,14 @@
 package fr.ceured.batismart.server.commons;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Builder
+@Setter
 public class ApiResponse<T> {
 
     private T data;

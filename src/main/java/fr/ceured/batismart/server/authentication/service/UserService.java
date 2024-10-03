@@ -11,6 +11,7 @@ import fr.ceured.batismart.server.authentication.repository.UserRepository;
 import fr.ceured.batismart.server.email.model.EmailConfirmation;
 import fr.ceured.batismart.server.email.service.EmailConfirmationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -67,5 +68,10 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .map(mapper::mapToDto)
                 .orElseThrow(EmailNotFoundException::new);
+    }
+
+    public User getUserInSecurityConfig() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        return this.getByEmail(email);
     }
 }
