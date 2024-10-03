@@ -8,6 +8,7 @@ import fr.ceured.batismart.server.client.model.Client;
 import fr.ceured.batismart.server.client.repository.ClientRepository;
 import fr.ceured.batismart.server.commons.InvalidInputException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -49,4 +50,9 @@ public class ClientService {
                 .toList();
     }
 
+    public List<Client> getAllClientsByPage(Pageable pageable) {
+        return clientRepository.findAll(pageable)
+                .map(clientMapper::clientEntityToClient)
+                .toList();
+    }
 }

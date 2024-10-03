@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class EmailNotFoundException extends CustomException {
 
-    private static final String EMAIL_NOT_FOUND = "Email not found";
+    public static final String EMAIL_NOT_FOUND = "Email not found";
 
     public EmailNotFoundException() {
         super(EMAIL_NOT_FOUND, HttpStatus.NOT_FOUND);
