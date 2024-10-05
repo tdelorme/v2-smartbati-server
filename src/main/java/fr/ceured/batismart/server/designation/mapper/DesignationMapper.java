@@ -4,7 +4,7 @@ import fr.ceured.batismart.server.designation.entity.DesignationEntity;
 import fr.ceured.batismart.server.designation.model.Designation;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface DesignationMapper {
 
     DesignationEntity designationToDesignationEntity(Designation designation);
