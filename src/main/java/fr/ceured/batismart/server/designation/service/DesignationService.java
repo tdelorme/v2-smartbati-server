@@ -4,6 +4,7 @@ import fr.ceured.batismart.server.authentication.model.User;
 import fr.ceured.batismart.server.authentication.service.UserService;
 import fr.ceured.batismart.server.commons.InvalidInputException;
 import fr.ceured.batismart.server.designation.entity.DesignationEntity;
+import fr.ceured.batismart.server.designation.exception.DesignationNotFoundException;
 import fr.ceured.batismart.server.designation.mapper.DesignationMapper;
 import fr.ceured.batismart.server.designation.model.Designation;
 import fr.ceured.batismart.server.designation.repository.DesignationRepository;
@@ -32,8 +33,7 @@ public class DesignationService {
 
     public Designation createDesignation(Designation designation) {
         if (!StringUtils.hasText(designation.getName())
-            || designation.getPriceExcludingTax() == null || designation.getPriceExcludingTax() <= 0
-            || designation.getPriceIncludingTax() == null || designation.getPriceIncludingTax() <= 0) {
+            || designation.getPrice() == null || designation.getPrice() <= 0) {
             throw new InvalidInputException();
         }
 
@@ -44,4 +44,9 @@ public class DesignationService {
         return designationMapper.designationEntityToDesignation(designationRepository.save(entity));
     }
 
+    public Designation getById(String id) {
+        return designationRepository.findById(id)
+                .map(designationMapper::designationEntityToDesignation)
+                .orElseThrow(() -> new DesignationNotFoundException(id));
+    }
 }

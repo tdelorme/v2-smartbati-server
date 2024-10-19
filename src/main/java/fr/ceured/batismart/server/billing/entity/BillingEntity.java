@@ -1,9 +1,8 @@
 package fr.ceured.batismart.server.billing.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import fr.ceured.batismart.server.billing.model.LineQuantity;
+import fr.ceured.batismart.server.billing.model.enums.BillingType;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 public class BillingEntity {
 
@@ -21,11 +21,14 @@ public class BillingEntity {
     private String id;
 
     private String number;
-    private List<String> designationIds;
+    private List<LineQuantity> designationIds;
     private String clientId;
     private Double totalExcludingTaxes;
     private Double totalIncludingTaxes;
     private String userId;
     private LocalDate date;
     private LocalDate dueDate;
+    private BillingType type;
+    private String generatedFile;
+    private Double discountPercent;
 }

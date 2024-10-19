@@ -1,10 +1,11 @@
 package fr.ceured.batismart.server.designation.entity;
 
+import fr.ceured.batismart.server.designation.model.enums.TypeDesignation;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("invoice")
+@Document("designation")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,11 +16,9 @@ public class DesignationEntity {
     @Id
     private String id;
 
-    private String number;
     private String name;
-    private Double priceExcludingTax;
-    private Double priceIncludingTax;
+    private Double price;
     private String userId;
-    
+    private TypeDesignation typeDesignation;
 
 }

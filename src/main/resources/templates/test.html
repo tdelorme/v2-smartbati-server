@@ -1,0 +1,68 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+    <body>
+        <table style="border: none; width: 100%;">
+            <tr>
+                <td rowspan="8" style="border: 1px black solid;">image</td>
+                <td colspan="3" style="font-weight: bolder; font-size: 35px;" th:text="${type}"></td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Date:</td>
+                <td style="font-weight: bold;">Type Document numero:</td>
+                <td style="font-weight: bold;">Numero du compte:</td>
+            </tr>
+            <tr>
+                <td th:text="${date}"></td>
+                <td th:text="${numeroBilling}"></td>
+                <td th:text="${numeroClient}"></td>
+            </tr>
+            <tr>
+                <td> </td>
+            </tr>
+            <tr>
+                <td> </td>
+            </tr>
+            <tr>
+                <td>Client :</td>
+                <td colspan="2" style="padding-left: 10%;" th:text="${address}"></td>
+            </tr>
+            <tr>
+                <td rowspan="2" style="font-weight: bold; font-size: 30px; vertical-align: text-top;" th:text="${client}"></td>
+                <td style="padding-left: 10%;" th:text="'Tel:' + ${tel}"></td>
+                <td th:text="'Email: '+${email}"></td>
+            </tr>
+            <tr>
+                <td style="padding-left: 10%;" th:text="'WebSite: '+${website}"></td>
+            </tr>
+        </table>
+        <br/>
+        <br />
+        <table style="width: 100%;" th:utext="${designation}">
+
+        </table>
+        <div style="width: 100%; text-align: right;">
+            <table style="float: right; padding-right: 10%;">
+                <tr>
+                    <td>Sous total</td>
+                    <td th:text="${subTotal}+'€'"></td>
+                </tr>
+                <tr>
+                    <td th:text="'TVA ('+${taxPercent}+'%)'"></td>
+                    <td th:text="${amountTax}+'€'"></td>
+                </tr>
+                <tr>
+                    <td th:text="'Réduction ('+${discountPercent}+'%)'"></td>
+                    <td th:text="${amountDiscount}+'€'"></td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td th:text="${amountTotal}+'€'"></td>
+                </tr>
+            </table>
+        </div>
+        <br/>
+        <br />
+        <br />
+        <br />
+        <p th:text="${description}"></p>
+    </body>
+</html>

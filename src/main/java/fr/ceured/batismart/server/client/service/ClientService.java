@@ -3,6 +3,7 @@ package fr.ceured.batismart.server.client.service;
 import fr.ceured.batismart.server.authentication.model.User;
 import fr.ceured.batismart.server.authentication.service.UserService;
 import fr.ceured.batismart.server.client.entity.ClientEntity;
+import fr.ceured.batismart.server.client.exception.ClientNotFoundException;
 import fr.ceured.batismart.server.client.mapper.ClientMapper;
 import fr.ceured.batismart.server.client.model.Client;
 import fr.ceured.batismart.server.client.repository.ClientRepository;
@@ -53,6 +54,12 @@ public class ClientService {
         User user = userService.getUserInSecurityConfig();
         return clientRepository.findAllByUserId(user.getId(), pageable)
                 .map(clientMapper::clientEntityToClient);
+    }
+
+    public Client getClientById(String id) {
+        return clientRepository.findById(id)
+                .map(clientMapper::clientEntityToClient)
+                .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
 }

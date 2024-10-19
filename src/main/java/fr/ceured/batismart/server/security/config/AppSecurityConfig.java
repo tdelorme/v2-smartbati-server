@@ -54,7 +54,7 @@ public class AppSecurityConfig {
                 .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth-> auth
-                        .requestMatchers("/error**","/auth/confirm-email**","/auth/register**","/auth/login**", "/favicon**").permitAll()
+                        .requestMatchers("/error**","/auth/confirm-email**","/auth/register**","/auth/login**", "/favicon**", "/document**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

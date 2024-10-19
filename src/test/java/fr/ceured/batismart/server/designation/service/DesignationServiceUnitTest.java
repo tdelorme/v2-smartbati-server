@@ -42,14 +42,12 @@ public class DesignationServiceUnitTest {
         DesignationEntity designationEntity = new DesignationEntity();
         designationEntity.setId("id");
         designationEntity.setName("name");
-        designationEntity.setPriceExcludingTax(10.0);
-        designationEntity.setPriceIncludingTax(25.0);
+        designationEntity.setPrice(25.0);
 
         Designation designation = Designation.builder()
                 .id("id")
                 .name("name")
-                .priceExcludingTax(10.0)
-                .priceIncludingTax(25.0)
+                .price(25.0)
                 .build();
 
         List<DesignationEntity> designationEntities = List.of(designationEntity, designationEntity);
@@ -73,22 +71,12 @@ public class DesignationServiceUnitTest {
         Assertions.assertThrows(InvalidInputException.class, () -> designationService.createDesignation(designation));
     }
 
-    @DisplayName("Doit retourner une exception quand le prix HT est 0 ou negatif")
-    @ParameterizedTest
-    @ValueSource(doubles = {0, -1})
-    void shouldThrowAnException_whenPriceExcludingTaxIsEquals0OrNegative(double price) {
-        Designation designation = Designation.builder()
-                .priceExcludingTax(price)
-                .build();
-        Assertions.assertThrows(InvalidInputException.class, () -> designationService.createDesignation(designation));
-    }
-
     @DisplayName("Doit retourner une exception quand le prix TTC est 0 ou negatif")
     @ParameterizedTest
     @ValueSource(doubles = {0, -1})
     void shouldThrowAnException_whenPriceIncludingTaxIsEquals0OrNegative(double price) {
         Designation designation = Designation.builder()
-                .priceExcludingTax(price)
+                .price(price)
                 .build();
         Assertions.assertThrows(InvalidInputException.class, () -> designationService.createDesignation(designation));
     }
@@ -100,15 +88,13 @@ public class DesignationServiceUnitTest {
         DesignationEntity designationEntity = DesignationEntity.builder()
                 .id("id")
                 .name("name")
-                .priceExcludingTax(10.0)
-                .priceIncludingTax(25.0)
+                .price(25.0)
                 .build();
 
         Designation designation = Designation.builder()
                 .id("id")
                 .name("name")
-                .priceExcludingTax(10.0)
-                .priceIncludingTax(25.0)
+                .price(25.0)
                 .build();
 
         Mockito.when(designationRepository.save(designationEntity)).thenReturn(designationEntity);
@@ -120,8 +106,7 @@ public class DesignationServiceUnitTest {
         Assertions.assertNotNull(designationResult);
         Assertions.assertEquals(designationEntity.getId(), designationResult.getId());
         Assertions.assertEquals(designationEntity.getName(), designationResult.getName());
-        Assertions.assertEquals(designationEntity.getPriceExcludingTax(), designationResult.getPriceExcludingTax());
-        Assertions.assertEquals(designationEntity.getPriceIncludingTax(), designationResult.getPriceIncludingTax());
+        Assertions.assertEquals(designationEntity.getPrice(), designationResult.getPrice());
 
     }
 

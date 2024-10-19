@@ -64,4 +64,20 @@ public class AuthenticationController {
         }
 
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<User>> me() {
+        return ResponseEntity.ok(ApiResponse.<User>builder()
+                .data(userService.getUserInSecurityConfig())
+                .build()
+        );
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<ApiResponse<User>> update(@RequestBody User user) {
+        return ResponseEntity.ok(ApiResponse.<User>builder()
+                .data(userService.updateUser(user))
+                .build());
+    }
+
 }

@@ -2,6 +2,7 @@ package fr.ceured.batismart.server.authentication.service;
 
 import fr.ceured.batismart.server.authentication.entity.UserEntity;
 import fr.ceured.batismart.server.authentication.exception.EmailNotFoundException;
+import fr.ceured.batismart.server.authentication.exception.IdNotFoundException;
 import fr.ceured.batismart.server.commons.InvalidInputException;
 import fr.ceured.batismart.server.authentication.exception.UserAlreadyExistException;
 import fr.ceured.batismart.server.authentication.exception.UserAlreadyVerifiedException;
@@ -73,5 +74,15 @@ public class UserService {
     public User getUserInSecurityConfig() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         return this.getByEmail(email);
+    }
+
+    public User getById(String userId) {
+        return userRepository.findById(userId)
+                .map(mapper::mapToDto)
+                .orElseThrow(IdNotFoundException::new);
+    }
+
+    public User updateUser(User user) {
+        return mapper.mapToDto(userRepository.save(mapper.mapToEntity(user)));
     }
 }

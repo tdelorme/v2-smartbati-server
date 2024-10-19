@@ -22,7 +22,14 @@ public class UserEntity {
     private String firstName;
     private String lastName;
     private String phone;
+    private String address;
+    private String zipCode;
+    private String city;
     private boolean active;
     private boolean accountVerified;
+    private String website;
+    private Double tax;
+
+    private String footer;
 
 }
