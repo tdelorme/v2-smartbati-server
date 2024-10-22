@@ -51,4 +51,31 @@ public class ClientController {
         return ResponseEntity.ok(pageableApiResponse);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<Client>>> getAll() {
+        return ResponseEntity.ok(
+                ApiResponse.<List<Client>>builder()
+                        .data(clientService.getAllClients())
+                        .build()
+        );
+    }
+
+    @GetMapping("/filter/{name}")
+    public ResponseEntity<ApiResponse<List<Client>>> getAllClientsByName(@PathVariable String name) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<Client>>builder()
+                        .data(clientService.getFilteredClientByName(name))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Client>> getClientById(@PathVariable String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Client>builder()
+                        .data(clientService.getClientById(id))
+                        .build()
+        );
+    }
+
 }

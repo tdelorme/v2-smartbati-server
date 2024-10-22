@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -48,5 +49,18 @@ public class DesignationService {
         return designationRepository.findById(id)
                 .map(designationMapper::designationEntityToDesignation)
                 .orElseThrow(() -> new DesignationNotFoundException(id));
+    }
+
+    public String createDesignationIfNotExist(Designation designation) {
+        User user = userService.getUserInSecurityConfig();
+        Optional<DesignationEntity> optionalDesignation = designationRepository.findByName(designation.getName());
+        if (optionalDesignation.isPresent()) {
+            return optionalDesignation.get().getId();
+        } else {
+            DesignationEntity entity = designationMapper.designationToDesignationEntity(designation);
+            entity.setUserId(user.getId());
+            return designationRepository.save(entity).getId();
+        }
+
     }
 }

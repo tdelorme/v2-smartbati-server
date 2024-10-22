@@ -25,5 +25,6 @@ public class User {
     private boolean accountVerified;
     private String website;
     private Double tax;
+    private Integer maxValidityBilling;
     private String footer;
 }

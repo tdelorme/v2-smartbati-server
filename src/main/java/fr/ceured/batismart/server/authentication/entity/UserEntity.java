@@ -29,6 +29,7 @@ public class UserEntity {
     private boolean accountVerified;
     private String website;
     private Double tax;
+    private Integer maxValidityBilling;
 
     private String footer;
 

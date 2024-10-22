@@ -1,6 +1,7 @@
 package fr.ceured.batismart.server.billing.model;
 
 import fr.ceured.batismart.server.billing.model.enums.BillingType;
+import fr.ceured.batismart.server.client.model.Client;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,8 +17,9 @@ public class Billing {
     private String id;
 
     private String number;
-    private List<LineQuantity> designationIds;
+    private List<LineQuantity> lineQuantities;
     private String clientId;
+    private Client client;
     private Double totalExcludingTaxes;
     private Double totalIncludingTaxes;
     private String userId;
@@ -26,4 +28,6 @@ public class Billing {
     private BillingType type;
     private String generatedFile;
     private Double discountPercent;
+    private Double taxAmount;
+    private Double discountAmount;
 }

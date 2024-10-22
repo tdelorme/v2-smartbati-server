@@ -21,7 +21,7 @@ public class BillingEntity {
     private String id;
 
     private String number;
-    private List<LineQuantity> designationIds;
+    private List<LineQuantity> lineQuantities;
     private String clientId;
     private Double totalExcludingTaxes;
     private Double totalIncludingTaxes;
@@ -31,4 +31,6 @@ public class BillingEntity {
     private BillingType type;
     private String generatedFile;
     private Double discountPercent;
+    private Double taxAmount;
+    private Double discountAmount;
 }

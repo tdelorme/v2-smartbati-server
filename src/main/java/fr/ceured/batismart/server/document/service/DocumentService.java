@@ -10,6 +10,7 @@ import fr.ceured.batismart.server.designation.model.Designation;
 import fr.ceured.batismart.server.designation.service.DesignationService;
 import fr.ceured.batismart.server.document.exception.GenerateDocumentException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -24,6 +25,7 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DocumentService {
@@ -37,14 +39,8 @@ public class DocumentService {
         Client client = clientService.getClientById(billing.getClientId());
         User user = userService.getById(billing.getUserId());
 
-        Double subtotal = billing.getDesignationIds()
-                .stream()
-                .peek(d -> d.setDesignation(designationService.getById(d.getDesignationId())))
-                .map(d ->  d.getQuantity() * d.getDesignation().getPrice())
-                .reduce(0.0, Double::sum);
-
         Context context = new Context();
-        context.setVariable("type", billing.getType().name());
+        context.setVariable("type", billing.getType().getValue());
         context.setVariable("date", billing.getDate());
         context.setVariable("numeroBilling", billing.getNumber());
         context.setVariable("numeroClient", client.getId());
@@ -53,20 +49,19 @@ public class DocumentService {
         context.setVariable("tel", user.getPhone());
         context.setVariable("email", user.getEmail());
         context.setVariable("website", user.getWebsite());
-        context.setVariable("designation", buildDesignation(billing.getDesignationIds()));
-        context.setVariable("subTotal", subtotal);
+        context.setVariable("designation", buildDesignation(billing.getLineQuantities()));
+        context.setVariable("subTotal", billing.getTotalExcludingTaxes());
         context.setVariable("taxPercent", user.getTax());
-        Double tax = user.getTax() != 0 ? subtotal * (user.getTax() / 100) : 0;
-        context.setVariable("amountTax", tax);
+        context.setVariable("amountTax", billing.getTaxAmount());
         context.setVariable("discountPercent", billing.getDiscountPercent());
-        double discount = billing.getDiscountPercent() != 0 ? -(subtotal * (billing.getDiscountPercent() / 100)) : 0;
-        context.setVariable("amountDiscount", discount);
-        context.setVariable("amountTotal", subtotal + tax - discount);
+        context.setVariable("amountDiscount", billing.getDiscountAmount());
+        context.setVariable("amountTotal", billing.getTotalIncludingTaxes());
         context.setVariable("description", user.getFooter());
 
         String html = parseThymeleafTemplate(context);
         String b64File;
         try {
+            log.info("generated html {}", html);
             b64File = generatePdfFromHtml(html);
         } catch (IOException e) {
             throw new GenerateDocumentException("Error while generate document");
@@ -83,11 +78,12 @@ public class DocumentService {
             Designation design = designationService.getById(lineQuantity.getDesignationId());
 
             switch (design.getTypeDesignation()) {
-                case CATEGORY -> designation.append("<tr>").append("<td colspan=\"4\" style=\"background-color\">").append(design.getName()).append("</td>");
-                case LINE -> designation.append("<td>").append(design.getName()).append("</td>")
+                case CATEGORY -> designation.append("<tr>").append("<td colspan=\"4\" style=\"background-color:blue;\">").append(design.getName()).append("</td>").append("</tr>");
+                case LINE -> designation.append("<tr>").append("<td>").append(design.getName()).append("</td>")
                         .append("<td>").append(lineQuantity.getQuantity()).append("</td>")
                         .append("<td>").append(design.getPrice()).append("</td>")
-                        .append("<td>").append(lineQuantity.getQuantity() * design.getPrice()).append("</td>");
+                        .append("<td>").append(lineQuantity.getQuantity() * design.getPrice()).append("</td>")
+                        .append("</tr>");
             }
         });
 
@@ -104,7 +100,7 @@ public class DocumentService {
         TemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);
 
-        return templateEngine.process("test", context);
+        return templateEngine.process("template", context);
     }
 
     public String generatePdfFromHtml(String html) throws IOException {

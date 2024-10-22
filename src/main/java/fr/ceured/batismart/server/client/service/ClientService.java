@@ -62,4 +62,10 @@ public class ClientService {
                 .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
+    public List<Client> getFilteredClientByName(String name) {
+        return clientRepository.findAllByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(name, name)
+                .stream()
+                .map(clientMapper::clientEntityToClient)
+                .toList();
+    }
 }
