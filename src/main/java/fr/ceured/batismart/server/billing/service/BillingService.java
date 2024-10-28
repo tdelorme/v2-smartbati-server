@@ -31,10 +31,43 @@ public class BillingService {
     private final CounterService counterService;
     private final ClientService clientService;
 
-    public Page<Billing> getAllBillingByType(BillingType billingType, Pageable pageable) {
+    public Page<Billing> getAllBillingQuote(Pageable pageable) {
         User user = userService.getUserInSecurityConfig();
 
-        return this.billingRepository.findAllByTypeAndUserId(billingType, user.getId(), pageable)
+        return this.billingRepository.findAllByTypeAndUserIdAndDeletedFalseOrderByIdDesc(BillingType.QUOTE, user.getId(), pageable)
+                .map(billingMapper::invoiceEntityToInvoice)
+                .map(billing -> {
+                    billing.setClient(clientService.getClientById(billing.getClientId()));
+                    return billing;
+                });
+    }
+
+    public Page<Billing> getAllBillingInvoice(Pageable pageable) {
+        User user = userService.getUserInSecurityConfig();
+
+        return this.billingRepository.findAllByTypeInAndUserIdAndDeletedFalseOrderByIdDesc(List.of(BillingType.INVOICE, BillingType.INVOICE_PAID), user.getId(), pageable)
+                .map(billingMapper::invoiceEntityToInvoice)
+                .map(billing -> {
+                    billing.setClient(clientService.getClientById(billing.getClientId()));
+                    return billing;
+                });
+    }
+
+    public Page<Billing> getAllBillingInvoicePaid(Pageable pageable) {
+        User user = userService.getUserInSecurityConfig();
+
+        return this.billingRepository.findAllByTypeInAndUserIdAndDeletedFalseOrderByIdDesc(List.of(BillingType.INVOICE_PAID), user.getId(), pageable)
+                .map(billingMapper::invoiceEntityToInvoice)
+                .map(billing -> {
+                    billing.setClient(clientService.getClientById(billing.getClientId()));
+                    return billing;
+                });
+    }
+
+    public Page<Billing> getAllBillingInvoiceNotPaid(Pageable pageable) {
+        User user = userService.getUserInSecurityConfig();
+
+        return this.billingRepository.findAllByTypeInAndUserIdAndDeletedFalseOrderByIdDesc(List.of(BillingType.INVOICE), user.getId(), pageable)
                 .map(billingMapper::invoiceEntityToInvoice)
                 .map(billing -> {
                     billing.setClient(clientService.getClientById(billing.getClientId()));
@@ -65,6 +98,7 @@ public class BillingService {
         billing.setDueDate(getDueDate(user, billing.getDate()));
 
         billing.setGeneratedFile(documentService.generateDocumentFromBilling(billing));
+        billing.setDeleted(Boolean.FALSE);
 
         return billingMapper.invoiceEntityToInvoice(billingRepository.save(billingMapper.invoiceToInvoiceEntity(billing)));
     }
@@ -76,5 +110,33 @@ public class BillingService {
 
     private LocalDate getDueDate(User user, LocalDate date) {
         return date.plusDays(user.getMaxValidityBilling());
+    }
+
+    public Boolean softDelete(String id) {
+        billingRepository.findById(id).ifPresent(billing -> {
+           billing.setDeleted(true);
+           billingRepository.save(billing);
+        });
+
+        return true;
+    }
+
+    public Boolean transformToInvoice(String id) {
+        billingRepository.findById(id).ifPresent(billing -> {
+            billing.setType(BillingType.INVOICE);
+            billing.setGeneratedFile(documentService.generateDocumentFromBilling(billingMapper.invoiceEntityToInvoice(billing)));
+            billingRepository.save(billing);
+        });
+
+        return true;
+    }
+
+    public Boolean paidInvoice(String id) {
+        billingRepository.findById(id).ifPresent(billing -> {
+            billing.setType(BillingType.INVOICE_PAID);
+            billingRepository.save(billing);
+        });
+
+        return true;
     }
 }

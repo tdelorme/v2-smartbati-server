@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface BillingRepository extends MongoRepository<BillingEntity, String> {
 
-    List<BillingEntity> findAllByUserId(String userId);
+    Page<BillingEntity> findAllByTypeAndUserIdAndDeletedFalseOrderByIdDesc(BillingType type, String userId, Pageable pageable);
 
-    Page<BillingEntity> findAllByTypeAndUserId(BillingType type, String userId, Pageable pageable);
+    Page<BillingEntity> findAllByTypeInAndUserIdAndDeletedFalseOrderByIdDesc(List<BillingType> list, String userId, Pageable pageable);
 }

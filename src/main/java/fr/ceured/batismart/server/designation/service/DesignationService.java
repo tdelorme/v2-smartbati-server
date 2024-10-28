@@ -63,4 +63,14 @@ public class DesignationService {
         }
 
     }
+
+    public List<Designation> findAllDesignationFilterByName(String name) {
+
+        User user = userService.getUserInSecurityConfig();
+
+        return designationRepository.findByNameContainingAndUserId(name, user.getId())
+                .stream()
+                .map(designationMapper::designationEntityToDesignation)
+                .toList();
+    }
 }

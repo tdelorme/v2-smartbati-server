@@ -16,11 +16,18 @@ public class DesignationController {
 
     private final DesignationService designationService;
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<ApiResponse<List<Designation>>> findAllDesignation() {
         return ResponseEntity.ok(ApiResponse.<List<Designation>>builder()
                         .data(designationService.findAllDesignations())
                         .build());
+    }
+
+    @GetMapping("{name}")
+    public ResponseEntity<ApiResponse<List<Designation>>> findAllDesignationByName(@PathVariable String name) {
+        return ResponseEntity.ok(ApiResponse.<List<Designation>>builder()
+                        .data(designationService.findAllDesignationFilterByName(name))
+                .build());
     }
 
     @PostMapping("/create")

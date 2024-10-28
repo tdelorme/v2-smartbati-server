@@ -30,4 +30,5 @@ public class Billing {
     private Double discountPercent;
     private Double taxAmount;
     private Double discountAmount;
+    private Boolean deleted;
 }

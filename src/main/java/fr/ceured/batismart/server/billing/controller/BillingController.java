@@ -1,7 +1,6 @@
 package fr.ceured.batismart.server.billing.controller;
 
 import fr.ceured.batismart.server.billing.model.Billing;
-import fr.ceured.batismart.server.billing.model.enums.BillingType;
 import fr.ceured.batismart.server.billing.service.BillingService;
 import fr.ceured.batismart.server.commons.ApiResponse;
 import fr.ceured.batismart.server.commons.PageableApiResponse;
@@ -27,7 +26,7 @@ public class BillingController {
 
         PageableApiResponse<List<Billing>> pageableApiResponse = new PageableApiResponse<>();
 
-        Page<Billing> billingPage = billingService.getAllBillingByType(BillingType.QUOTE, pageable);
+        Page<Billing> billingPage = billingService.getAllBillingQuote(pageable);
         pageableApiResponse.setTotalCount(billingPage.getTotalElements());
         pageableApiResponse.setData(billingPage.getContent());
 
@@ -40,7 +39,33 @@ public class BillingController {
 
         PageableApiResponse<List<Billing>> pageableApiResponse = new PageableApiResponse<>();
 
-        Page<Billing> billingPage = billingService.getAllBillingByType(BillingType.INVOICE, pageable);
+        Page<Billing> billingPage = billingService.getAllBillingInvoice(pageable);
+        pageableApiResponse.setTotalCount(billingPage.getTotalElements());
+        pageableApiResponse.setData(billingPage.getContent());
+
+        return ResponseEntity.ok(pageableApiResponse);
+    }
+
+    @GetMapping("/invoice/paid/page/{page}/size/{size}")
+    public ResponseEntity<PageableApiResponse<List<Billing>>> findAllInvoicePaid(@PathVariable int page, @PathVariable int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        PageableApiResponse<List<Billing>> pageableApiResponse = new PageableApiResponse<>();
+
+        Page<Billing> billingPage = billingService.getAllBillingInvoicePaid(pageable);
+        pageableApiResponse.setTotalCount(billingPage.getTotalElements());
+        pageableApiResponse.setData(billingPage.getContent());
+
+        return ResponseEntity.ok(pageableApiResponse);
+    }
+
+    @GetMapping("/invoice/not/paid/page/{page}/size/{size}")
+    public ResponseEntity<PageableApiResponse<List<Billing>>> findAllInvoiceNotPaid(@PathVariable int page, @PathVariable int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        PageableApiResponse<List<Billing>> pageableApiResponse = new PageableApiResponse<>();
+
+        Page<Billing> billingPage = billingService.getAllBillingInvoiceNotPaid(pageable);
         pageableApiResponse.setTotalCount(billingPage.getTotalElements());
         pageableApiResponse.setData(billingPage.getContent());
 
@@ -52,6 +77,33 @@ public class BillingController {
         return ResponseEntity.ok(
                 ApiResponse.<Billing>builder()
                         .data(billingService.createBilling(billing))
+                        .build()
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteInvoice(@PathVariable("id") String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .data(billingService.softDelete(id))
+                        .build()
+        );
+    }
+
+    @PostMapping("/transform/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> transform(@PathVariable("id") String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .data(billingService.transformToInvoice(id))
+                        .build()
+        );
+    }
+
+    @PostMapping("/paid/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> paidInvoice(@PathVariable("id") String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .data(billingService.paidInvoice(id))
                         .build()
         );
     }

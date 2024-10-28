@@ -11,4 +11,5 @@ public interface DesignationRepository extends MongoRepository<DesignationEntity
     List<DesignationEntity> findAllByUserId(String userId);
     Optional<DesignationEntity> findByName(String name);
 
+    List<DesignationEntity> findByNameContainingAndUserId(String name, String userId);
 }

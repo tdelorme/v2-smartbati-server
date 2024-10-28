@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum BillingType {
 
     QUOTE("DEVIS"),
-    INVOICE("FACTURE");
+    INVOICE("FACTURE"),
+    INVOICE_PAID("FACTURE_PAYE");
 
     private final String value;
 
