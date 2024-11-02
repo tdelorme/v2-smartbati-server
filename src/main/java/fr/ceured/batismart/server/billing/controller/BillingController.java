@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -73,7 +74,7 @@ public class BillingController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Billing>> createInvoice(@RequestBody Billing billing) {
+    public ResponseEntity<ApiResponse<Billing>> createInvoice(@RequestBody Billing billing) throws ParseException {
         return ResponseEntity.ok(
                 ApiResponse.<Billing>builder()
                         .data(billingService.createBilling(billing))

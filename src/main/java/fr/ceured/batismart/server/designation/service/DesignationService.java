@@ -2,6 +2,7 @@ package fr.ceured.batismart.server.designation.service;
 
 import fr.ceured.batismart.server.authentication.model.User;
 import fr.ceured.batismart.server.authentication.service.UserService;
+import fr.ceured.batismart.server.commons.DoubleUtils;
 import fr.ceured.batismart.server.commons.InvalidInputException;
 import fr.ceured.batismart.server.designation.entity.DesignationEntity;
 import fr.ceured.batismart.server.designation.exception.DesignationNotFoundException;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,13 +53,14 @@ public class DesignationService {
                 .orElseThrow(() -> new DesignationNotFoundException(id));
     }
 
-    public String createDesignationIfNotExist(Designation designation) {
+    public String createDesignationIfNotExist(Designation designation) throws ParseException {
         User user = userService.getUserInSecurityConfig();
         Optional<DesignationEntity> optionalDesignation = designationRepository.findByName(designation.getName());
         if (optionalDesignation.isPresent()) {
             return optionalDesignation.get().getId();
         } else {
             DesignationEntity entity = designationMapper.designationToDesignationEntity(designation);
+            entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
             entity.setUserId(user.getId());
             return designationRepository.save(entity).getId();
         }

@@ -7,6 +7,7 @@ import fr.ceured.batismart.server.billing.model.Billing;
 import fr.ceured.batismart.server.billing.model.enums.BillingType;
 import fr.ceured.batismart.server.billing.repository.BillingRepository;
 import fr.ceured.batismart.server.client.service.ClientService;
+import fr.ceured.batismart.server.commons.DoubleUtils;
 import fr.ceured.batismart.server.counter.service.CounterService;
 import fr.ceured.batismart.server.designation.model.enums.TypeDesignation;
 import fr.ceured.batismart.server.designation.service.DesignationService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -75,25 +77,31 @@ public class BillingService {
                 });
     }
 
-    public Billing createBilling(Billing billing) {
+    public Billing createBilling(Billing billing) throws ParseException {
         User user = userService.getUserInSecurityConfig();
 
         billing.setUserId(user.getId());
         billing.setNumber(generateNumber(user));
-        Double subtotal = billing.getLineQuantities()
+        double subtotal = billing.getLineQuantities()
                 .stream()
-                .peek(lineQuantity -> lineQuantity.setDesignationId(designationService.createDesignationIfNotExist(lineQuantity.getDesignation())))
+                .peek(lineQuantity -> {
+                    try {
+                        lineQuantity.setDesignationId(designationService.createDesignationIfNotExist(lineQuantity.getDesignation()));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .peek(designation -> designation.setDesignation(designationService.getById(designation.getDesignationId())))
                 .filter(designation -> TypeDesignation.LINE.equals(designation.getDesignation().getTypeDesignation()))
                 .map(designation ->  designation.getQuantity() * designation.getDesignation().getPrice())
                 .reduce(0.0, Double::sum);
-        Double tax = user.getTax() != 0 ? subtotal * (user.getTax() / 100) : 0;
+        double tax = user.getTax() != 0 ? subtotal * (user.getTax() / 100) : 0;
         double discount = billing.getDiscountPercent() != 0 ? -(subtotal * (billing.getDiscountPercent() / 100)) : 0;
 
-        billing.setTotalExcludingTaxes(subtotal);
-        billing.setTotalIncludingTaxes(subtotal + tax - discount);
-        billing.setTaxAmount(tax);
-        billing.setDiscountAmount(discount);
+        billing.setTotalExcludingTaxes(DoubleUtils.roundPrice(subtotal));
+        billing.setTotalIncludingTaxes(DoubleUtils.roundPrice(subtotal + tax - discount));
+        billing.setTaxAmount(DoubleUtils.roundPrice(tax));
+        billing.setDiscountAmount(DoubleUtils.roundPrice(discount));
         billing.setDate(LocalDate.now());
         billing.setDueDate(getDueDate(user, billing.getDate()));
 

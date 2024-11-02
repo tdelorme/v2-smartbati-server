@@ -44,7 +44,9 @@ public class ClientService {
     }
 
     public List<Client> getAllClients() {
-        return clientRepository.findAll()
+        User user = userService.getUserInSecurityConfig();
+
+        return clientRepository.findByUserId(user.getId())
                 .stream()
                 .map(clientMapper::clientEntityToClient)
                 .toList();

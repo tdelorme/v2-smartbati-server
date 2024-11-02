@@ -12,6 +12,7 @@ import java.util.List;
 public interface ClientRepository extends MongoRepository<ClientEntity, String> {
 
     Page<ClientEntity> findAllByUserId(String userId, Pageable pageable);
+    List<ClientEntity> findByUserId(String userId);
     List<ClientEntity> findAllByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCase(String lastName, String firstName);
 
 }
