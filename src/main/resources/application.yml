@@ -14,5 +14,5 @@ spring:
             enable: true
   data:
     mongodb:
-      uri: mongodb://localhost:27017/
+      uri: mongodb+srv://thibautdelorme:Ot8zMb8IXM4xDdkG@smartbaticluster.ixarm.mongodb.net/?retryWrites=true&w=majority&appName=SmartBatiCluster
       database: smart_bati

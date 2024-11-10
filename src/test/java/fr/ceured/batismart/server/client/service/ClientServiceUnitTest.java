@@ -123,6 +123,7 @@ public class ClientServiceUnitTest {
     @Test
     void should_return_list_of_client() {
         //GIVEN
+        User user = mockUser();
         Client client = buildClient();
 
         ClientEntity clientEntity = buildClientEntity();
@@ -130,7 +131,7 @@ public class ClientServiceUnitTest {
         clientEntities.add(clientEntity);
         clientEntities.add(clientEntity);
         //WHEN
-        Mockito.when(clientRepository.findAll()).thenReturn(clientEntities);
+        Mockito.when(clientRepository.findByUserId(user.getId())).thenReturn(clientEntities);
         Mockito.when(clientMapper.clientEntityToClient(clientEntity)).thenReturn(client);
         List<Client> clientList = clientService.getAllClients();
         //THEN

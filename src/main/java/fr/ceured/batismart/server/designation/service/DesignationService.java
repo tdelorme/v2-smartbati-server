@@ -60,7 +60,9 @@ public class DesignationService {
             return optionalDesignation.get().getId();
         } else {
             DesignationEntity entity = designationMapper.designationToDesignationEntity(designation);
-            entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
+            if ( designation.getPrice() != null) {
+                entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
+            }
             entity.setUserId(user.getId());
             return designationRepository.save(entity).getId();
         }
