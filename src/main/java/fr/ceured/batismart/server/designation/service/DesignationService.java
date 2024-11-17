@@ -55,23 +55,28 @@ public class DesignationService {
                 .orElseThrow(() -> new DesignationNotFoundException(id));
     }
 
-    public String createDesignationIfNotExist(Designation designation) throws ParseException {
+    public String upsertDesignationAndGetId(Designation designation) throws ParseException {
         User user = userService.getUserInSecurityConfig();
         Optional<DesignationEntity> optionalDesignation = designationRepository.findByName(designation.getName());
+        DesignationEntity entity;
         if (optionalDesignation.isPresent()) {
-            return optionalDesignation.get().getId();
+            entity = optionalDesignation.get();
+            if (designation.getPrice() != null) {
+                entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
+            }
+            entity.setDescription(designation.getDescription());
         } else {
-            DesignationEntity entity = designationMapper.designationToDesignationEntity(designation);
+            entity = designationMapper.designationToDesignationEntity(designation);
             if (designation.getPrice() != null) {
                 entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
             }
             entity.setUserId(user.getId());
-            return designationRepository.save(entity).getId();
+
         }
+        return designationRepository.save(entity).getId();
     }
 
     public List<Designation> findAllDesignationFilterByNameAndTypeDesignation(String name, String typeDesignationName) {
-
         User user = userService.getUserInSecurityConfig();
 
         return designationRepository.findByNameContainingAndUserIdAndTypeDesignation(name, user.getId(), TypeDesignation.valueOf(typeDesignationName))

@@ -86,7 +86,7 @@ public class BillingService {
                 .stream()
                 .peek(lineQuantity -> {
                     try {
-                        lineQuantity.setDesignationId(designationService.createDesignationIfNotExist(lineQuantity.getDesignation()));
+                        lineQuantity.setDesignationId(designationService.upsertDesignationAndGetId(lineQuantity.getDesignation()));
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
