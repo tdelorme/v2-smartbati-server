@@ -19,6 +19,7 @@ public class DesignationEntity {
     private String name;
     private Double price;
     private String userId;
+    private String description;
     private TypeDesignation typeDesignation;
 
 }

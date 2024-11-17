@@ -8,6 +8,7 @@ import fr.ceured.batismart.server.designation.entity.DesignationEntity;
 import fr.ceured.batismart.server.designation.exception.DesignationNotFoundException;
 import fr.ceured.batismart.server.designation.mapper.DesignationMapper;
 import fr.ceured.batismart.server.designation.model.Designation;
+import fr.ceured.batismart.server.designation.model.enums.TypeDesignation;
 import fr.ceured.batismart.server.designation.repository.DesignationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,8 @@ public class DesignationService {
 
     public Designation createDesignation(Designation designation) {
         if (!StringUtils.hasText(designation.getName())
-            || designation.getPrice() == null || designation.getPrice() <= 0) {
+                || designation.getPrice() == null
+                || designation.getPrice() <= 0) {
             throw new InvalidInputException();
         }
 
@@ -60,22 +62,27 @@ public class DesignationService {
             return optionalDesignation.get().getId();
         } else {
             DesignationEntity entity = designationMapper.designationToDesignationEntity(designation);
-            if ( designation.getPrice() != null) {
+            if (designation.getPrice() != null) {
                 entity.setPrice(DoubleUtils.roundPrice(designation.getPrice()));
             }
             entity.setUserId(user.getId());
             return designationRepository.save(entity).getId();
         }
-
     }
 
-    public List<Designation> findAllDesignationFilterByName(String name) {
+    public List<Designation> findAllDesignationFilterByNameAndTypeDesignation(String name, String typeDesignationName) {
 
         User user = userService.getUserInSecurityConfig();
 
-        return designationRepository.findByNameContainingAndUserId(name, user.getId())
+        return designationRepository.findByNameContainingAndUserIdAndTypeDesignation(name, user.getId(), TypeDesignation.valueOf(typeDesignationName))
                 .stream()
                 .map(designationMapper::designationEntityToDesignation)
                 .toList();
+    }
+
+    public List<Designation> findAllDesignationsByTypeDesignation(String typeDesignation) {
+        User user = userService.getUserInSecurityConfig();
+
+        return designationRepository.findByUserIdAndTypeDesignation(user.getId(), TypeDesignation.valueOf(typeDesignation.toUpperCase()));
     }
 }

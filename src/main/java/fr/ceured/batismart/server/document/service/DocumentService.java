@@ -12,6 +12,7 @@ import fr.ceured.batismart.server.document.exception.GenerateDocumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -44,7 +45,7 @@ public class DocumentService {
         context.setVariable("date", billing.getDate());
         context.setVariable("numeroBilling", billing.getNumber());
         context.setVariable("numeroClient", client.getId());
-        context.setVariable("address", user.getAddress() +" "+ user.getZipCode() + " " + user.getCity());
+        context.setVariable("address", user.getAddress() + " " + user.getZipCode() + " " + user.getCity());
         context.setVariable("client", client.getFirstName() + " " + client.getLastName());
         context.setVariable("tel", user.getPhone());
         context.setVariable("email", user.getEmail());
@@ -72,18 +73,29 @@ public class DocumentService {
 
     private String buildDesignation(List<LineQuantity> designationIds) {
         StringBuilder designation = new StringBuilder();
-        designation.append("<tr style=\"text-align: left;\"><th>Désignation</th><th>Quantité</th><th>Prix Unitaire</th><th>Total</th></tr>");
+        designation.append(
+                "<tr style=\"text-align: left;\"><th>Désignation</th><th>Quantité</th><th>Prix Unitaire</th><th>Total</th></tr>");
 
         designationIds.forEach(lineQuantity -> {
             Designation design = designationService.getById(lineQuantity.getDesignationId());
 
             switch (design.getTypeDesignation()) {
-                case CATEGORY -> designation.append("<tr>").append("<td colspan=\"4\" style=\"background-color:blue;\">").append(design.getName()).append("</td>").append("</tr>");
-                case LINE -> designation.append("<tr>").append("<td>").append(design.getName()).append("</td>")
-                        .append("<td>").append(lineQuantity.getQuantity()).append("</td>")
-                        .append("<td>").append(design.getPrice()).append("</td>")
-                        .append("<td>").append(lineQuantity.getQuantity() * design.getPrice()).append("</td>")
-                        .append("</tr>");
+                case CATEGORY -> designation.append("<tr>").append("<td colspan=\"4\" style=\"font-weight: bolder;\">")
+                        .append(design.getName()).append("</td>").append("</tr>");
+                case LINE -> {
+                    designation.append("<tr>")
+                            .append("<td>").append(design.getName()).append("</td>")
+                            .append("<td>").append(lineQuantity.getQuantity()).append("</td>")
+                            .append("<td>").append(design.getPrice()).append("</td>")
+                            .append("<td>").append(lineQuantity.getQuantity() * design.getPrice()).append("</td>")
+                            .append("</tr>");
+                    if (StringUtils.hasText(design.getDescription())) {
+                        designation.append("<tr>")
+                                .append("<td colspan=\"4\" style=\"font-size: 10px;\"> ").append(design.getDescription())
+                                .append("</td>")
+                                .append("</tr>");
+                    }
+                }
             }
         });
 

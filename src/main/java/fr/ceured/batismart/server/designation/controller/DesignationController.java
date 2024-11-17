@@ -23,10 +23,17 @@ public class DesignationController {
                         .build());
     }
 
-    @GetMapping("{name}")
-    public ResponseEntity<ApiResponse<List<Designation>>> findAllDesignationByName(@PathVariable String name) {
+    @GetMapping("/{typeDesignation}/{name}")
+    public ResponseEntity<ApiResponse<List<Designation>>> findAllDesignationByName(@PathVariable String typeDesignation, @PathVariable String name) {
         return ResponseEntity.ok(ApiResponse.<List<Designation>>builder()
-                        .data(designationService.findAllDesignationFilterByName(name))
+                        .data(designationService.findAllDesignationFilterByNameAndTypeDesignation(name, typeDesignation))
+                .build());
+    }
+
+    @GetMapping("/{typeDesignation}")
+    public ResponseEntity<ApiResponse<List<Designation>>> findAllDesignationByCategory(@PathVariable String typeDesignation) {
+        return ResponseEntity.ok(ApiResponse.<List<Designation>>builder()
+                        .data(designationService.findAllDesignationsByTypeDesignation(typeDesignation))
                 .build());
     }
 

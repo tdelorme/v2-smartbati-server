@@ -13,6 +13,7 @@ public class Designation {
 
     private String name;
     private Double price;
+    private String description;
     private TypeDesignation typeDesignation;
 
 }
