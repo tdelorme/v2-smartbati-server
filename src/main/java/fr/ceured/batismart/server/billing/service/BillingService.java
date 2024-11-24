@@ -2,6 +2,8 @@ package fr.ceured.batismart.server.billing.service;
 
 import fr.ceured.batismart.server.authentication.model.User;
 import fr.ceured.batismart.server.authentication.service.UserService;
+import fr.ceured.batismart.server.billing.exception.BillingNotFoundException;
+import fr.ceured.batismart.server.billing.exception.ExceedTotalException;
 import fr.ceured.batismart.server.billing.mapper.BillingMapper;
 import fr.ceured.batismart.server.billing.model.Billing;
 import fr.ceured.batismart.server.billing.model.enums.BillingType;
@@ -32,6 +34,16 @@ public class BillingService {
     private final DocumentService documentService;
     private final CounterService counterService;
     private final ClientService clientService;
+
+    private Billing getById(String id) {
+        return billingRepository.findById(id)
+                .map(billingMapper::invoiceEntityToInvoice)
+                .orElseThrow(() -> new BillingNotFoundException(id));
+    }
+
+    private Billing update(Billing billing) {
+        return billingMapper.invoiceEntityToInvoice(billingRepository.save(billingMapper.invoiceToInvoiceEntity(billing)));
+    }
 
     public Page<Billing> getAllBillingQuote(Pageable pageable) {
         User user = userService.getUserInSecurityConfig();
@@ -121,30 +133,55 @@ public class BillingService {
     }
 
     public Boolean softDelete(String id) {
-        billingRepository.findById(id).ifPresent(billing -> {
-           billing.setDeleted(true);
-           billingRepository.save(billing);
-        });
+        Billing billing = getById(id);
+
+        billing.setDeleted(true);
+        update(billing);
 
         return true;
     }
 
     public Boolean transformToInvoice(String id) {
-        billingRepository.findById(id).ifPresent(billing -> {
-            billing.setType(BillingType.INVOICE);
-            billing.setGeneratedFile(documentService.generateDocumentFromBilling(billingMapper.invoiceEntityToInvoice(billing)));
-            billingRepository.save(billing);
-        });
+        Billing billing = getById(id);
+
+        billing.setType(BillingType.INVOICE);
+        billing.setGeneratedFile(documentService.generateDocumentFromBilling(billing));
+
+        update(billing);
 
         return true;
     }
 
     public Boolean paidInvoice(String id) {
-        billingRepository.findById(id).ifPresent(billing -> {
-            billing.setType(BillingType.INVOICE_PAID);
-            billingRepository.save(billing);
-        });
+        Billing billing = getById(id);
+
+        billing.setType(BillingType.INVOICE_PAID);
+
+        update(billing);
 
         return true;
+    }
+
+    public Billing deposit(String id, Double amount) {
+        Billing billing = getById(id);
+
+        Double deposit = 0d;
+
+        if (billing.getDeposit() != null) {
+            deposit = billing.getDeposit();
+        }
+
+        deposit += amount;
+
+        if ((billing.getTotalIncludingTaxes() - deposit) < 0) {
+            throw new ExceedTotalException();
+        }
+
+        billing.setDeposit(deposit);
+
+        Billing billingUpdated = update(billing);
+        billingUpdated.setClient(clientService.getClientById(billing.getClientId()));
+
+        return billingUpdated;
     }
 }
