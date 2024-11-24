@@ -109,4 +109,13 @@ public class BillingController {
         );
     }
 
+    @PostMapping("/deposit/part/{id}/{amount}")
+    public ResponseEntity<ApiResponse<Billing>> depositPart(@PathVariable("id") String id, @PathVariable("amount") Double amount) {
+        return ResponseEntity.ok(
+                ApiResponse.<Billing>builder()
+                        .data(billingService.deposit(id, amount))
+                        .build()
+        );
+    }
+
 }

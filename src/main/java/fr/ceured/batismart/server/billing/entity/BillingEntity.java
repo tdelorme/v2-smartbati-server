@@ -33,5 +33,6 @@ public class BillingEntity {
     private Double discountPercent;
     private Double taxAmount;
     private Double discountAmount;
+    private Double deposit;
     private boolean deleted;
 }
