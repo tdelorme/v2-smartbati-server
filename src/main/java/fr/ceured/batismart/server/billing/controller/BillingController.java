@@ -21,6 +21,15 @@ public class BillingController {
 
     private final BillingService billingService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Billing>> findById(@PathVariable("id") final String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Billing>builder()
+                        .data(billingService.getById(id))
+                        .build()
+        );
+    }
+
     @GetMapping("/quote/page/{page}/size/{size}")
     public ResponseEntity<PageableApiResponse<List<Billing>>> findAllQuote(@PathVariable int page, @PathVariable int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -82,15 +91,6 @@ public class BillingController {
         );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Boolean>> deleteInvoice(@PathVariable("id") String id) {
-        return ResponseEntity.ok(
-                ApiResponse.<Boolean>builder()
-                        .data(billingService.softDelete(id))
-                        .build()
-        );
-    }
-
     @PostMapping("/transform/{id}")
     public ResponseEntity<ApiResponse<Boolean>> transform(@PathVariable("id") String id) {
         return ResponseEntity.ok(
@@ -114,6 +114,15 @@ public class BillingController {
         return ResponseEntity.ok(
                 ApiResponse.<Billing>builder()
                         .data(billingService.deposit(id, amount))
+                        .build()
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> deleteInvoice(@PathVariable("id") String id) {
+        return ResponseEntity.ok(
+                ApiResponse.<Boolean>builder()
+                        .data(billingService.softDelete(id))
                         .build()
         );
     }

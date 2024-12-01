@@ -35,9 +35,13 @@ public class BillingService {
     private final CounterService counterService;
     private final ClientService clientService;
 
-    private Billing getById(String id) {
+    public Billing getById(String id) {
         return billingRepository.findById(id)
                 .map(billingMapper::invoiceEntityToInvoice)
+                .map(billing -> {
+                    billing.setClient(clientService.getClientById(billing.getClientId()));
+                    return billing;
+                })
                 .orElseThrow(() -> new BillingNotFoundException(id));
     }
 
@@ -179,8 +183,14 @@ public class BillingService {
 
         billing.setDeposit(deposit);
 
+
+        if (billing.getDeposit().equals(billing.getTotalIncludingTaxes())) {
+            billing.setType(BillingType.INVOICE_PAID);
+        }
+
         Billing billingUpdated = update(billing);
         billingUpdated.setClient(clientService.getClientById(billing.getClientId()));
+
 
         return billingUpdated;
     }
